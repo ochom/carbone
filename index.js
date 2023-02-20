@@ -9,6 +9,10 @@ libre.convertAsync = require("util").promisify(libre.convert);
 const app = express();
 app.use(express.json({ limit: "50mb" }));
 
+app.get("/", (req, res) => {
+  res.send("Hello Carbone");
+});
+
 app.get("/template", async (req, res) => {
   res.send(getTemplate());
 });
