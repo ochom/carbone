@@ -1,0 +1,13 @@
+version: "3.7"
+
+services:
+  carbone:
+    build: .
+    container_name: carbone_server
+    restart: always
+    ports:
+      - 5001:3000
+    volumes:
+      - ./templates:/usr/src/app/templates
+    environment:
+      - PORT=3000
