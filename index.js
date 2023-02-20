@@ -62,5 +62,28 @@ app.post("/generate", async (req, res) => {
   });
 });
 
+app.get("/download-games", async (req, res) => {
+  const data = await getData();
+
+  // template name with timestamp
+  const input = `/tmp/template-${Date.now()}.docx`;
+
+  // write to disk
+  fs.writeFileSync(input, getTemplate());
+
+  carbone.render(input, data, async (err, result) => {
+    if (err) {
+      return res.status(500).json({ error: err });
+    }
+
+    // Convert it to pdf format with undefined filter (see Libreoffice docs about filter)
+    let pdfBuf = await libre.convertAsync(result, ".pdf", undefined);
+
+    // send to client
+    res.contentType("application/pdf");
+    res.send(pdfBuf);
+  });
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
