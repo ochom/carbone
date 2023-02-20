@@ -58,7 +58,7 @@ app.post("/generate", async (req, res) => {
     }
 
     // Convert it to pdf format with undefined filter (see Libreoffice docs about filter)
-    let pdfBuf = await libre.convertAsync(result, ".pdf", undefined);
+    const pdfBuf = await libre.convertAsync(result, ".pdf", undefined);
 
     // send to client
     res.contentType("application/pdf");
@@ -68,12 +68,16 @@ app.post("/generate", async (req, res) => {
 
 app.get("/download-games", async (req, res) => {
   const data = await getData();
+  const template = getTemplate();
 
   // template name with timestamp
   const input = `/tmp/template-${Date.now()}.docx`;
 
+  // convert base64 to binary
+  const binary = Buffer.from(template, "base64");
+
   // write to disk
-  fs.writeFileSync(input, getTemplate());
+  fs.writeFileSync(input, binary);
 
   carbone.render(input, data, async (err, result) => {
     if (err) {
@@ -81,7 +85,7 @@ app.get("/download-games", async (req, res) => {
     }
 
     // Convert it to pdf format with undefined filter (see Libreoffice docs about filter)
-    let pdfBuf = await libre.convertAsync(result, ".pdf", undefined);
+    const pdfBuf = await libre.convertAsync(result, ".pdf", undefined);
 
     // send to client
     res.contentType("application/pdf");
