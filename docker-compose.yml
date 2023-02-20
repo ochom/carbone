@@ -1,9 +1,9 @@
 version: "3.7"
 
 services:
-  carbone:
-    build: .
-    container_name: carbone_server
+  games_download:
+    build: https://${GITHUB_TOKEN}@github.com/solami-limited/download-games.git#main
+    container_name: games_download_service
     restart: always
     ports:
       - 5001:3000
@@ -11,3 +11,5 @@ services:
       - ./templates:/usr/src/app/templates
     environment:
       - PORT=3000
+    env_file:
+      - .env
