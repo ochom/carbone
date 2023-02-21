@@ -15,7 +15,9 @@ const getData = async () => {
   try {
     const res = await axios.get("https://smsgames.kwikbet.co.ke/api/v2/games");
     const newData = res.data.map((d) => {
-      const startTime = moment(d.startTime).format("DD/MM HH:mm");
+      const startTime = moment(d.startTime)
+        .add(3, "hours")
+        .format("DD/MM HH:mm");
 
       // format the odds to 2 decimal places
       d.homeOdds = parseFloat(d.homeOdds).toFixed(2);
