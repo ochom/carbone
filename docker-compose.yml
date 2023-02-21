@@ -12,4 +12,4 @@ services:
     env_file:
       - .env
     volumes:
-      - ./templates:/usr/src/app/templates
+      - ./:/usr/src/app/
