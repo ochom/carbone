@@ -18,8 +18,5 @@ jobs:
           key: ${{ secrets.SSH_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
-            whoami
-            ls -la
-            ls -la /var/www/
             cd /var/www/games-download
             docker-compose up -d --build
