@@ -2,7 +2,7 @@ version: "3.7"
 
 services:
   games_download:
-    build: .
+    build: https://${GITHUB_TOKEN}@github.com/solami-limited/download-games.git#main
     container_name: games_download_service
     restart: always
     ports:
@@ -11,5 +11,3 @@ services:
       - PORT=3000
     env_file:
       - .env
-    volumes:
-      - ./templates:/usr/src/app/templates
