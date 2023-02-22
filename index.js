@@ -1,6 +1,7 @@
 const carbone = require("carbone");
 const express = require("express");
 const fs = require("fs");
+const cors = require("cors");
 const { getTemplate, getData } = require("./helpers");
 
 const libre = require("libreoffice-convert");
@@ -77,6 +78,11 @@ console.log("Starting data stream");
 streamData();
 
 const app = express();
+const corsOptions = {
+  origin: "*",
+  optionsSuccessStatus: 200,
+};
+app.use(cors(corsOptions));
 app.use(express.json({ limit: "50mb" }));
 
 app.get("/", (req, res) => {
