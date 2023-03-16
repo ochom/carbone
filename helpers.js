@@ -11,13 +11,18 @@ const getTemplate = () => {
   return base64;
 };
 
-const getData = async () => {
+const getData = async (filter = "all") => {
   try {
-    const res = await axios.get("https://smsgames.kwikbet.co.ke/api/v2/games");
+    const res = await axios.get(`https://smsgames.kwikbet.co.ke/api/v2/games`);
     const newData = res.data.map((d) => {
       const startTime = moment(d.startTime)
         .add(3, "hours")
         .format("DD/MM HH:mm");
+
+      let isTodayGame = false;
+      if (moment().isSame(moment(d.startTime), "day")) {
+        isTodayGame = true;
+      }
 
       // format the odds to 2 decimal places
       d.homeOdds = parseFloat(d.homeOdds).toFixed(2);
@@ -29,9 +34,45 @@ const getData = async () => {
       d.meta.gg = parseFloat(d.meta.gg || 0).toFixed(2);
       d.meta.ng = parseFloat(d.meta.ng || 0).toFixed(2);
 
-      return { ...d, startTime };
+      return { ...d, startTime, isTodayGame };
     });
-    return newData;
+
+    const topGames = {
+      title: "Today's Highlights",
+      data: [],
+    };
+
+    const todayGames = {
+      title: "Today's Games",
+      data: [],
+    };
+
+    const allGames = {
+      title: "All Games",
+      data: newData,
+    };
+
+    for (let i = 0; i < newData.length; i++) {
+      // if the game is a highlight add it to the topGames array
+      if (newData[i].isHighlight && newData[i].isTodayGame) {
+        topGames.data.push(newData[i]);
+      }
+
+      // if the game is a today game and not a highlight add it to the todayGames array
+      if (newData[i].isTodayGame && !newData[i].isHighlight) {
+        todayGames.data.push(newData[i]);
+      }
+    }
+
+    if (filter === "top") {
+      return [topGames];
+    }
+
+    if (filter === "today") {
+      return [todayGames];
+    }
+
+    return [allGames];
   } catch (err) {
     console.log(err);
     return [];
