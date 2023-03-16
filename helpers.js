@@ -11,6 +11,11 @@ const getTemplate = () => {
   return base64;
 };
 
+const parseOdds = (odds) => {
+  const oddsFloat = parseFloat(odds || 0).toFixed(2);
+  return oddsFloat.length > 4 ? oddsFloat.slice(0, 4) : oddsFloat;
+};
+
 const getData = async (filter = "all") => {
   try {
     const res = await axios.get(`https://smsgames.kwikbet.co.ke/api/v2/games`);
@@ -24,15 +29,15 @@ const getData = async (filter = "all") => {
         isTodayGame = true;
       }
 
-      // format the odds to 2 decimal places
-      d.homeOdds = parseFloat(d.homeOdds).toFixed(2);
-      d.awayOdds = parseFloat(d.awayOdds).toFixed(2);
-      d.drawOdds = parseFloat(d.drawOdds).toFixed(2);
+      // format the odds to 3 digits either max e.g 1.234 return 1.23 and 15.678 return 15.7
+      d.homeOdds = parseOdds(d.homeOdds);
+      d.awayOdds = parseOdds(d.awayOdds);
+      d.drawOdds = parseOdds(d.drawOdds);
 
-      d.meta.un = parseFloat(d.meta.un || 0).toFixed(2);
-      d.meta.ov = parseFloat(d.meta.ov || 0).toFixed(2);
-      d.meta.gg = parseFloat(d.meta.gg || 0).toFixed(2);
-      d.meta.ng = parseFloat(d.meta.ng || 0).toFixed(2);
+      d.meta.un = parseOdds(d.meta.un);
+      d.meta.ov = parseOdds(d.meta.ov);
+      d.meta.gg = parseOdds(d.meta.gg);
+      d.meta.ng = parseOdds(d.meta.ng);
 
       return { ...d, startTime, isTodayGame };
     });
