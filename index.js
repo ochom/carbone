@@ -23,6 +23,10 @@ const cache = {
 
 const loadContent = async (filter) => {
   const now = new Date();
+  if (!cache[filter]) {
+    filter = "all";
+  }
+
   const memory = cache[filter];
 
   if (memory.binary && memory.lastUpdated) {
