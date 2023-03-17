@@ -22,7 +22,7 @@ const cache = {
 };
 
 const updateCache = async (filter) => {
-  const startTime = new Date().getTime();
+  const startTime = new Date();
   if (!cache[filter]) {
     filter = "all";
   }
@@ -33,9 +33,8 @@ const updateCache = async (filter) => {
   memory.lastUpdated = new Date();
 
   cache[filter] = { ...memory };
-  console.log(
-    `Cache updated for ${filter} in ${new Date().getTime() - startTime}ms`
-  );
+  const tt = new Date().getTime() - startTime.getTime();
+  console.log(`Cache updated for ${filter} took ${tt}ms`);
 };
 
 const app = express();

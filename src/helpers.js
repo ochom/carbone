@@ -1,5 +1,6 @@
 const carbone = require("carbone");
 const fs = require("fs");
+var path = require("path");
 const axios = require("axios");
 const moment = require("moment");
 
@@ -7,8 +8,11 @@ const libre = require("libreoffice-convert");
 libre.convertAsync = require("util").promisify(libre.convert);
 
 const getTemplate = () => {
+  // template file
+  // eslint-disable-next-line no-undef
+  const templateFile = path.join(__dirname, "templates", "games-template.docx");
   // read file from disk
-  const template = fs.readFileSync("templates/games template.docx");
+  const template = fs.readFileSync(templateFile);
   // convert to base64
   const base64 = Buffer.from(template).toString("base64");
   // send to client
