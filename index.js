@@ -1,33 +1,43 @@
-const carbone = require("carbone");
 const express = require("express");
 const fs = require("fs");
 const cors = require("cors");
-const { getTemplate, getData } = require("./helpers");
-
+const { getTemplate, getData, generateContent } = require("./helpers");
+const carbone = require("carbone");
 const libre = require("libreoffice-convert");
 libre.convertAsync = require("util").promisify(libre.convert);
 
+const cache = {
+  all: {
+    binary: null,
+    lastUpdated: null,
+  },
+  top: {
+    binary: null,
+    lastUpdated: null,
+  },
+  today: {
+    binary: null,
+    lastUpdated: null,
+  },
+};
+
 const loadContent = async (filter) => {
-  const data = await getData(filter);
-  const template = getTemplate();
+  const now = new Date();
+  const memory = cache[filter];
 
-  return new Promise((resolve, reject) => {
-    // template name with timestamp
-    const input = `/tmp/template-${Date.now()}.docx`;
+  if (memory.binary && memory.lastUpdated) {
+    const diff = now.getTime() - memory.lastUpdated.getTime();
+    if (diff < 1000 * 60 * 30) {
+      // 30 minutes
+      return memory.binary;
+    }
+  }
 
-    // write to disk
-    fs.writeFileSync(input, Buffer.from(template, "base64"));
+  memory.binary = await generateContent(filter);
+  memory.lastUpdated = now;
 
-    carbone.render(input, data, async (err, result) => {
-      if (err) {
-        return reject(err);
-      }
-
-      // Convert it to pdf format with undefined filter (see Libreoffice docs about filter)
-      const pdfBuf = await libre.convertAsync(result, ".pdf", undefined);
-      return resolve(pdfBuf);
-    });
-  });
+  cache[filter] = { ...memory };
+  return memory.binary;
 };
 
 const app = express();
