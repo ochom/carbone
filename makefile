@@ -2,7 +2,7 @@ SHELL:=/bin/bash
 
 dev:
 	@echo "Starting development server..."
-	@npm run dev
+	@docker compose up
 
 build:
 	@echo "Building..."

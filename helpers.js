@@ -1,6 +1,10 @@
+const carbone = require("carbone");
 const fs = require("fs");
 const axios = require("axios");
 const moment = require("moment");
+
+const libre = require("libreoffice-convert");
+libre.convertAsync = require("util").promisify(libre.convert);
 
 const getTemplate = () => {
   // read file from disk
@@ -18,7 +22,7 @@ const parseOdds = (odds) => {
 
 const getData = async (filter = "all") => {
   try {
-    const res = await axios.get(`https://smsgames.kwikbet.co.ke/api/v2/games`);
+    const res = await axios.get("https://smsgames.kwikbet.co.ke/api/v2/games");
     const newData = res.data.map((d) => {
       const startTime = moment(d.startTime)
         .add(3, "hours")
@@ -84,4 +88,27 @@ const getData = async (filter = "all") => {
   }
 };
 
-module.exports = { getTemplate, getData };
+const generateContent = async (filter) => {
+  const data = await getData(filter);
+  const template = getTemplate();
+
+  return new Promise((resolve, reject) => {
+    // template name with timestamp
+    const input = `/tmp/template-${Date.now()}.docx`;
+
+    // write to disk
+    fs.writeFileSync(input, Buffer.from(template, "base64"));
+
+    carbone.render(input, data, async (err, result) => {
+      if (err) {
+        return reject(err);
+      }
+
+      // Convert it to pdf format with undefined filter (see Libreoffice docs about filter)
+      const pdfBuf = await libre.convertAsync(result, ".pdf", undefined);
+      return resolve(pdfBuf);
+    });
+  });
+};
+
+module.exports = { getTemplate, getData, generateContent };
