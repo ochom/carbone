@@ -21,27 +21,17 @@ const cache = {
   },
 };
 
-const loadContent = async (filter) => {
-  const now = new Date();
+const updateCache = async (filter) => {
   if (!cache[filter]) {
     filter = "all";
   }
 
   const memory = cache[filter];
 
-  if (memory.binary && memory.lastUpdated) {
-    const diff = now.getTime() - memory.lastUpdated.getTime();
-    if (diff < 1000 * 60 * 30) {
-      // 30 minutes
-      return memory.binary;
-    }
-  }
-
   memory.binary = await generateContent(filter);
-  memory.lastUpdated = now;
+  memory.lastUpdated = new Date();
 
   cache[filter] = { ...memory };
-  return memory.binary;
 };
 
 const app = express();
@@ -110,9 +100,24 @@ app.post("/generate", async (req, res) => {
 });
 
 app.get("/download-games", async (req, res) => {
-  const content = await loadContent(req.query.filter || "all");
+  let filter = req.query.filter;
+  if (!cache[filter]) {
+    filter = "all";
+  }
+
   res.contentType("application/pdf");
-  res.send(content);
+
+  if (cache[filter].binary && cache[filter].lastUpdated) {
+    const diff = new Date().getTime() - cache[filter].lastUpdated.getTime();
+    // cache for 30 minutes but update it in the background
+    if (diff < 1000 * 60 * 30) {
+      updateCache(filter);
+      return res.send(cache[filter].binary);
+    }
+  }
+
+  await updateCache(filter);
+  res.send(cache[filter].binary);
 });
 
 const PORT = process.env.PORT || 3000;
