@@ -51,7 +51,7 @@ const getData = async (filter = "all") => {
     });
 
     const topGames = {
-      title: "Today's Highlights",
+      title: "Highlights",
       data: [],
     };
 
@@ -67,12 +67,12 @@ const getData = async (filter = "all") => {
 
     for (let i = 0; i < newData.length; i++) {
       // if the game is a highlight add it to the topGames array
-      if (newData[i].isHighlight && newData[i].isTodayGame) {
+      if (newData[i].isHighlight) {
         topGames.data.push(newData[i]);
       }
 
       // if the game is a today game and not a highlight add it to the todayGames array
-      if (newData[i].isTodayGame && !newData[i].isHighlight) {
+      if (newData[i].isTodayGame) {
         todayGames.data.push(newData[i]);
       }
     }
