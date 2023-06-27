@@ -4,7 +4,7 @@ services:
   games_download:
     build: .
     container_name: games_download_service
-    restart: always
+    restart: on-failure:1
     ports:
       - 5001:3000
     environment:
