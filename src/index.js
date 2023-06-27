@@ -84,7 +84,7 @@ app.post("/generate", async (req, res) => {
 
     carbone.render(input, data, async (err, result) => {
       if (err) {
-        return res.status(400).json({ error: err.message, data });
+        return res.status(400).json({ error: err.message, data, template });
       }
 
       if (convertTo === "docx") {
