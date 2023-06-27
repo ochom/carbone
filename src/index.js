@@ -59,47 +59,52 @@ app.get("/data", async (req, res) => {
 });
 
 app.post("/generate", async (req, res) => {
-  let { template, data, convertTo } = req.body;
-  if (!template) {
-    template = getTemplate();
-  }
-
-  if (!data) {
-    data = await getData();
-  }
-
-  if (!convertTo) {
-    convertTo = "pdf";
-  }
-
-  // convert base64 to binary
-  const binary = Buffer.from(template, "base64");
-
-  // template name with timestamp
-  const input = `/tmp/template-${Date.now()}.docx`;
-
-  // write to disk
-  fs.writeFileSync(input, binary);
-
-  carbone.render(input, data, async (err, result) => {
-    if (err) {
-      return res.status(500).json({ error: err });
+  try {
+    let { template, data, convertTo } = req.body;
+    if (!template) {
+      template = getTemplate();
     }
 
-    if (convertTo === "docx") {
-      res.contentType(
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-      );
-      return res.send(result);
+    if (!data) {
+      data = await getData();
     }
 
-    // Convert it to pdf format with undefined filter (see Libreoffice docs about filter)
-    const pdfBuf = await libre.convertAsync(result, ".pdf", undefined);
+    if (!convertTo) {
+      convertTo = "pdf";
+    }
 
-    // send to client
-    res.contentType("application/pdf");
-    res.send(pdfBuf);
-  });
+    // convert base64 to binary
+    const binary = Buffer.from(template, "base64");
+
+    // template name with timestamp
+    const input = `/tmp/template-${Date.now()}.docx`;
+
+    // write to disk
+    fs.writeFileSync(input, binary);
+
+    carbone.render(input, data, async (err, result) => {
+      if (err) {
+        return res.status(500).json({ error: err.message });
+      }
+
+      if (convertTo === "docx") {
+        res.contentType(
+          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+        );
+        return res.send(result);
+      }
+
+      // Convert it to pdf format with undefined filter (see Libreoffice docs about filter)
+      const pdfBuf = await libre.convertAsync(result, ".pdf", undefined);
+
+      // send to client
+      res.contentType("application/pdf");
+      res.send(pdfBuf);
+    });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.get("/download-games", async (req, res) => {
