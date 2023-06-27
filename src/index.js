@@ -77,7 +77,7 @@ app.post("/generate", async (req, res) => {
     const binary = Buffer.from(template, "base64");
 
     // template name with timestamp
-    const input = `/tmp/template-${Date.now()}.docx`;
+    const input = `/tmp/template-${Date.now()}.odt`;
 
     // write to disk
     fs.writeFileSync(input, binary);
