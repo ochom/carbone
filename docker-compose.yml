@@ -7,6 +7,4 @@ services:
     build: .
     restart: on-failure:1
     ports:
-      - 5000:8080 
-    volumes:
-      - ./:/usr/src/app/
+      - 5000:8080
