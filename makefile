@@ -8,3 +8,6 @@ build:
 	@echo "Building..."
 	@npm run build
 
+tidy:
+	@echo "Tidying..."
+	@npm install

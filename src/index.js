@@ -1,10 +1,12 @@
-const express = require("express");
-const fs = require("fs");
-const cors = require("cors");
-const { getTemplate, getData, generateContent } = require("./helpers");
-const carbone = require("carbone");
-const libre = require("libreoffice-convert");
-libre.convertAsync = require("util").promisify(libre.convert);
+import express, { json } from "express";
+import { writeFileSync } from "fs";
+import cors from "cors";
+import { getTemplate, getData, generateContent } from "./helpers.js";
+import carbone from "carbone";
+import { convert } from "libreoffice-convert";
+import { promisify } from "util";
+
+const convertAsync = promisify(convert);
 
 const cache = {
   all: {
@@ -43,7 +45,7 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
-app.use(express.json({ limit: "50mb" }));
+app.use(json({ limit: "50mb" }));
 
 app.get("/", (req, res) => {
   res.send("Hello Carbone");
@@ -80,22 +82,20 @@ app.post("/generate", async (req, res) => {
     const input = `/tmp/template-${Date.now()}.odt`;
 
     // write to disk
-    fs.writeFileSync(input, binary);
+    writeFileSync(input, binary);
 
     carbone.render(input, data, async (err, result) => {
+      console.log("processing template...");
       if (err) {
         return res.status(400).json({ error: err.message, data, template });
       }
 
-      if (convertTo === "docx") {
-        res.contentType(
-          "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-        );
-        return res.send(result);
-      }
+      console.log("converting to pdf...");
 
       // Convert it to pdf format with undefined filter (see Libreoffice docs about filter)
-      const pdfBuf = await libre.convertAsync(result, ".pdf", undefined);
+      const pdfBuf = await convertAsync(result, ".pdf", undefined);
+
+      console.log("sending to client...");
 
       // send to client
       res.contentType("application/pdf");

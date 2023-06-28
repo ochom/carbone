@@ -1,18 +1,19 @@
-const carbone = require("carbone");
-const fs = require("fs");
-var path = require("path");
-const axios = require("axios");
-const moment = require("moment");
+import carbone from "carbone";
+import { readFileSync, writeFileSync } from "fs";
+import { join } from "path";
+import axios from "axios";
+import moment from "moment";
+import { promisify } from "util";
 
-const libre = require("libreoffice-convert");
-libre.convertAsync = require("util").promisify(libre.convert);
+import { convert } from "libreoffice-convert";
+const convertAsync = promisify(convert);
 
 const getTemplate = () => {
   // template file
   // eslint-disable-next-line no-undef
-  const templateFile = path.join(__dirname, "templates", "games-template.docx");
+  const templateFile = join(__dirname, "templates", "games-template.docx");
   // read file from disk
-  const template = fs.readFileSync(templateFile);
+  const template = readFileSync(templateFile);
   // convert to base64
   const base64 = Buffer.from(template).toString("base64");
   // send to client
@@ -101,7 +102,7 @@ const generateContent = async (filter) => {
     const input = `/tmp/template-${Date.now()}.docx`;
 
     // write to disk
-    fs.writeFileSync(input, Buffer.from(template, "base64"));
+    writeFileSync(input, Buffer.from(template, "base64"));
 
     carbone.render(input, data, async (err, result) => {
       if (err) {
@@ -109,10 +110,10 @@ const generateContent = async (filter) => {
       }
 
       // Convert it to pdf format with undefined filter (see Libreoffice docs about filter)
-      const pdfBuf = await libre.convertAsync(result, ".pdf", undefined);
+      const pdfBuf = await convertAsync(result, ".pdf", undefined);
       return resolve(pdfBuf);
     });
   });
 };
 
-module.exports = { getTemplate, getData, generateContent };
+export { getTemplate, getData, generateContent };
