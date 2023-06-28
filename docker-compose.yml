@@ -1,13 +1,11 @@
 version: "3.7"
 
 services:
-  games_download:
-    build: .
-    container_name: games_download_service
+  carbone:
+    container_name: carbone
+    image: ochom/carbone:latest
     restart: on-failure:1
     ports:
-      - 5001:3000
-    environment:
-      - PORT=3000
+      - 5000:8080 
     volumes:
       - ./:/usr/src/app/
