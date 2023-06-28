@@ -3,7 +3,8 @@ version: "3.7"
 services:
   carbone:
     container_name: carbone
-    image: ochom/carbone:latest
+    # image: ochom/carbone:latest
+    build: .
     restart: on-failure:1
     ports:
       - 5000:8080 

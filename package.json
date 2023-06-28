@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "PORT=3001 nodemon src/index.js",
-    "start": "node src/index.js"
+    "dev": "PORT=3001 nodemon  index.js",
+    "start": "node index.js"
   },
   "author": "ochom <ochomrichard752@gmail.com>",
   "license": "ISC",

@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y libreoffice
 
 
 # Create app directory
-WORKDIR /usr/src/app
+WORKDIR /app
 
 # Install app dependencies
 COPY package*.json ./

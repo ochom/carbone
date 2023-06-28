@@ -4,7 +4,7 @@ import cors from "cors";
 import carbone from "carbone";
 import { convert } from "libreoffice-convert";
 import { promisify } from "util";
-import { v5 as uuid5 } from "uuid";
+import { v4 as uuidv4 } from "uuid";
 
 const convertAsync = promisify(convert);
 
@@ -32,7 +32,7 @@ app.post("/generate", async (req, res) => {
     const binary = Buffer.from(template, "base64");
 
     // template name with timestamp
-    const input = `/tmp/template-${uuid5()}.odt`;
+    const input = `/tmp/template-${uuidv4()}.odt`;
 
     // write to disk
     writeFileSync(input, binary);
