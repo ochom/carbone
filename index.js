@@ -38,17 +38,12 @@ app.post("/generate", async (req, res) => {
     writeFileSync(input, binary);
 
     const processResult = async (err, result) => {
-      console.log("processing template...");
       if (err) {
         return res.status(400).json({ error: err.message, data });
       }
 
-      console.log(`converting to ${convertTo}...`);
-
       // Convert it to pdf format with undefined filter (see Libre office docs about filter)
       const pdfBuf = await convertAsync(result, `.${convertTo}`, undefined);
-
-      console.log("sending to client...");
 
       // delete template
       unlinkSync(input);
