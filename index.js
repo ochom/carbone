@@ -25,48 +25,51 @@ app.get("/", (req, res) => {
 });
 
 app.post("/generate", async (req, res) => {
-  try {
-    let { template, data, convertTo } = req.body;
+  let { template, data, convertTo, templateExtension } = req.body;
 
-    if (!convertTo) {
-      convertTo = "pdf";
+  if (!convertTo) {
+    convertTo = "pdf";
+  }
+
+  // convert base64 to binary
+  const binary = Buffer.from(template, "base64");
+
+  // template name with timestamp
+  const input = path.join(
+    _dirname,
+    "output",
+    `template-${uuidv4()}.${templateExtension}`
+  );
+
+  // write to disk
+  writeFileSync(input, binary);
+
+  const processResult = async (err, result) => {
+    if (err) {
+      return res
+        .status(400)
+        .json({ error: err.message, message: "Could parse data" });
     }
 
-    // convert base64 to binary
-    const binary = Buffer.from(template, "base64");
+    try {
+      // Convert it to pdf format with undefined filter (see Libre office docs about filter)
+      const pdfBuf = await convertAsync(result, `${convertTo}`, undefined);
 
-    // template name with timestamp
-    const input = path.join(_dirname, `template-${uuidv4()}.odt`);
+      // send to client
+      res.contentType(`application/${convertTo}`);
+      res.send(pdfBuf);
+    } catch (error) {
+      console.log(error);
+      return res
+        .status(500)
+        .json({ error: error.message, message: "Could not convert to pdf" });
+    }
 
-    // write to disk
-    writeFileSync(input, binary);
+    // delete template
+    unlinkSync(input);
+  };
 
-    const processResult = async (err, result) => {
-      if (err) {
-        return res.status(400).json({ error: err.message });
-      }
-
-      try {
-        // Convert it to pdf format with undefined filter (see Libre office docs about filter)
-        const pdfBuf = await convertAsync(result, `${convertTo}`, undefined);
-
-        // send to client
-        res.contentType(`application/${convertTo}`);
-        res.send(pdfBuf);
-      } catch (error) {
-        console.log(error);
-        return res.status(400).json({ error: error.message });
-      }
-
-      // delete template
-      unlinkSync(input);
-    };
-
-    carbone.render(input, data, processResult);
-  } catch (err) {
-    console.log(err);
-    res.status(500).json({ error: err.message });
-  }
+  carbone.render(input, data, processResult);
 });
 
 const PORT = process.env.PORT || 8080;
