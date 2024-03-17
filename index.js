@@ -5,7 +5,9 @@ import carbone from "carbone";
 import { convert } from "libreoffice-convert";
 import { promisify } from "util";
 import { v4 as uuidv4 } from "uuid";
+import path from "path";
 
+const _dirname = path.resolve();
 const convertAsync = promisify(convert);
 
 const app = express();
@@ -17,7 +19,7 @@ app.use(cors(corsOptions));
 app.use(json({ limit: "200mb" }));
 
 app.get("/", (req, res) => {
-  res.send("Hello Carbone");
+  res.send("Hello Carbone: Your IP: " + req.ip);
 });
 
 app.post("/generate", async (req, res) => {
@@ -32,7 +34,7 @@ app.post("/generate", async (req, res) => {
     const binary = Buffer.from(template, "base64");
 
     // template name with timestamp
-    const input = `/tmp/template-${uuidv4()}.odt`;
+    const input = path.join(_dirname, `template-${uuidv4()}.odt`);
 
     // write to disk
     writeFileSync(input, binary);
@@ -42,15 +44,20 @@ app.post("/generate", async (req, res) => {
         return res.status(400).json({ error: err.message, data });
       }
 
-      // Convert it to pdf format with undefined filter (see Libre office docs about filter)
-      const pdfBuf = await convertAsync(result, `.${convertTo}`, undefined);
+      try {
+        // Convert it to pdf format with undefined filter (see Libre office docs about filter)
+        const pdfBuf = await convertAsync(result, `${convertTo}`, undefined);
+
+        // send to client
+        res.contentType(`application/${convertTo}`);
+        res.send(pdfBuf);
+      } catch (error) {
+        console.log(error);
+        return res.status(400).json({ error: error.message, data });
+      }
 
       // delete template
       unlinkSync(input);
-
-      // send to client
-      res.contentType(`application/${convertTo}`);
-      res.send(pdfBuf);
     };
 
     carbone.render(input, data, processResult);
