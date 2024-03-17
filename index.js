@@ -10,6 +10,8 @@ import path from "path";
 const _dirname = path.resolve();
 const convertAsync = promisify(convert);
 
+console.log(process.platform, process.arch);
+
 const app = express();
 const corsOptions = {
   origin: "*",
@@ -41,7 +43,7 @@ app.post("/generate", async (req, res) => {
 
     const processResult = async (err, result) => {
       if (err) {
-        return res.status(400).json({ error: err.message, data });
+        return res.status(400).json({ error: err.message });
       }
 
       try {
@@ -53,7 +55,7 @@ app.post("/generate", async (req, res) => {
         res.send(pdfBuf);
       } catch (error) {
         console.log(error);
-        return res.status(400).json({ error: error.message, data });
+        return res.status(400).json({ error: error.message });
       }
 
       // delete template

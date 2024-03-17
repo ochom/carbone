@@ -8,3 +8,6 @@ services:
     restart: on-failure:1
     ports:
       - 5001:8080
+    volumes:
+      - .:/app
+      - /app/node_modules
