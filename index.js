@@ -14,7 +14,7 @@ const corsOptions = {
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
-app.use(json({ limit: "50mb" }));
+app.use(json({ limit: "200mb" }));
 
 app.get("/", (req, res) => {
   res.send("Hello Carbone");
