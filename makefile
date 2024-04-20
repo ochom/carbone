@@ -2,11 +2,11 @@ SHELL:=/bin/bash
 
 dev:
 	@echo "Starting development server..."
-	@npm run dev
+	@bun run dev
 
 build:
 	@echo "Building..."
-	@npm run build
+	@bun run build
 
 deploy:
 	@echo "Starting development server..."
@@ -14,4 +14,4 @@ deploy:
 
 tidy:
 	@echo "Tidying..."
-	@npm install
+	@bun install
