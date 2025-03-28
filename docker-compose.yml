@@ -1,13 +1,24 @@
-version: "3.7"
-
 services:
   carbone:
-    container_name: carbone
-    # image: ochom/carbone:latest
-    build: .
-    restart: on-failure:1
+    image: "carbone/carbone-ee:latest"
+    deploy:
+      replicas: 3
     ports:
-      - 5001:8080
+      - "4000:4000"
+    environment:
+      - CARBONE_EE_STUDIO=true
+      # - CARBONE_EE_AUTHENTICATION=true
+      - CARBONE_EE_STUDIOUSER=toto:Passw0rd
     volumes:
-      - .:/app
-      - /app/node_modules
+      - ./template:/app/template
+      - ./render:/app/render
+      - ./config:/app/config
+  
+  nginx:
+    image: nginx:latest
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+    depends_on:
+      - carbone
+    ports:
+      - "4000:80"

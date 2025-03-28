@@ -8,16 +8,7 @@ Install libre office using the command below
 sudo apt-get update && apt-get install -y libreoffice
 ```
 
-## Download the image, build and run
-
-Download the image
-
-```sh
-docker pull ochom/carbone:latest
-docker run -d -p 5001:8080 ochom/carbone:latest
-```
-
-Or uring docker compose
+## Run with docker compose
 
 ```sh
 docker compose up -d
